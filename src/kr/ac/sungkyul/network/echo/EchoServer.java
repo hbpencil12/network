@@ -58,7 +58,7 @@ public class EchoServer {
 					os.write(data.getBytes("utf-8"));
 				}
 			} catch (SocketException e) {
-				System.out.println("[echo server] 비정상적으로 클라이언가 연결을 끊었습니다.");
+				System.out.println("[echo server] 비정상적으로 클라이언트가 연결을 끊었습니다." + e );
 			} catch (IOException e) {
 				e.printStackTrace();
 			} finally {
