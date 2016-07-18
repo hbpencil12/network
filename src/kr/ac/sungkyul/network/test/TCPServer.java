@@ -7,6 +7,7 @@ import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.SocketException;
 
 public class TCPServer {
 	private final static int SERVER_PORT = 1000;
@@ -37,32 +38,40 @@ public class TCPServer {
 			System.out.println( 
 				"[server] 연결 성공 from " + remoteHostAddress + ":" + remoteHostPort );
 			
-			//5. IOStream
-			InputStream is = socket.getInputStream();
-			OutputStream os = socket.getOutputStream();
-			
-			//6.데이터 읽기
-			byte[] buffer = new byte[256];
-			int readBytes = is.read( buffer ); // blocked
-			if( readBytes <= -1 ) { // 클라이언트가 연결을 끊었다.(정상종료)
-				System.out.println( "[server] closed by client" );
-				return;
-			}
-			
-			String data = new String( buffer, 0, readBytes, "utf-8" );
-			System.out.print( "[server] received :" + data );
-
-			//7. 데이터 쓰기
-			os.write( data.getBytes( "utf-8" ) );
-			
-			//8. 소켓 닫기
-			if( socket != null && socket.isClosed() == false ) {
-				socket.close();
+			try {
+				//5. IOStream
+				InputStream is = socket.getInputStream();
+				OutputStream os = socket.getOutputStream();
+				
+				//6.데이터 읽기
+				byte[] buffer = new byte[256];
+				int readBytes = is.read( buffer ); // blocked
+				if( readBytes <= -1 ) { // 클라이언트가 연결을 끊었다.(정상종료)
+					System.out.println( "[server] closed by client" );
+					return;
+				}
+				
+				String data = new String( buffer, 0, readBytes, "utf-8" );
+				System.out.print( "[server] received :" + data );
+	
+				//7. 데이터 쓰기
+				os.write( data.getBytes( "utf-8" ) );
+			} catch( SocketException e ) {
+				System.out.println( "[server] 비정상적으로 클라이언가 연결을 끊었습니다.");
+				
+		    } catch( IOException e) {
+				e.printStackTrace();
+			} finally {
+				//8. 데이터 통신 소켓 닫기
+				if( socket != null && socket.isClosed() == false ) {
+					socket.close();
+				}
 			}
 		} catch (IOException e) {
 			e.printStackTrace();
 		} finally {
 			try {
+				// 9. 서버 소켓 닫기
 				if( serverSocket != null && serverSocket.isClosed() == false ) {
 					serverSocket.close();
 				}
