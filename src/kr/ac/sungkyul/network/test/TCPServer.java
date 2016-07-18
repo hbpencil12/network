@@ -44,14 +44,18 @@ public class TCPServer {
 			//6.데이터 읽기
 			byte[] buffer = new byte[256];
 			int readBytes = is.read( buffer ); // blocked
-			if( readBytes < -1 ) { // 클라이언트가 연결을 끊었다.(정상종료)
+			if( readBytes <= -1 ) { // 클라이언트가 연결을 끊었다.(정상종료)
 				System.out.println( "[server] closed by client" );
 				return;
 			}
 			
 			String data = new String( buffer, 0, readBytes, "utf-8" );
-			System.out.println( "[server] received :" + data );
+			System.out.print( "[server] received :" + data );
 
+			//7. 데이터 쓰기
+			os.write( data.getBytes( "utf-8" ) );
+			
+			//8. 소켓 닫기
 			if( socket != null && socket.isClosed() == false ) {
 				socket.close();
 			}
